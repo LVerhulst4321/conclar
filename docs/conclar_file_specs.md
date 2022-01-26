@@ -8,7 +8,7 @@ This is a work in progress, so stuff may still change at any time.
 
 ---
 
-## Program Array
+## Program Object
 
 ```javascript
 var program = [
@@ -30,7 +30,7 @@ var program = [
 	{
 		"id": "416",
 		"title": "An Interview with the Knight of Honour",
-		"tags": [ "Another track" ],
+		"tags": [ "Track: Art", "Division: Program", "Tag: GoH", "Tag: Another tag" ],
 		"date": "2013-12-25",
 		"time": "23:30",
 		"mins": "45",
@@ -40,7 +40,10 @@ var program = [
 			{ "id": "2345", "name": "Just Sömeguy" }
 		],
 		"desc": "",
-		"links": []
+		"links": [
+			"meeting": "http://url.to,meeting/",
+			"recording": "http://url.to.recording/"
+		]
 	},
 	...
 ];
@@ -49,13 +52,13 @@ var program = [
 
 `title` is the title of the programme item.
 
-`tags` may include any number of programme tracks or other classifying indicators. These different tags can have prefixes (such as "Track:" or "Division:" to split out the type of tag.
+`tags` may include any number of programme tracks or other classifying indicators in this array. These different tags can have prefixes (such as "Track:" or "Division:" to split out the type of tag.
 
 `date` is the date of when the item will happen.
 
 `time` is the time of when the programme item will start. It assumes that the timezone of the item is the same as the server.
 
-`mins` is the duration of the programme item.
+`mins` is the duration of the programme item in minutes.
 
 Note: In order to avoid complications related to programme items that go on past midnight, or which have a starting time past midnight, is to include `time` for the start time and use `mins` for the duration in minutes (with 0 for unknown or n/a).
 
@@ -65,12 +68,12 @@ Note: In order to avoid complications related to programme items that go on past
 
 `desc` is a description of the programme item.
 
-Note: The fields `desc` for program.js and `bio` for people.js can support HTML tags, which may not be supported elsewhere (though they’ll probably be fine).
+Note: The fields `desc` for program.js and `bio` for people.js can support HTML tags, which are not supported elsewhere.
 
-`links` is an array that contains a set of links for the programme item. Currently, `meeting` and `recording` are the valid link types.
+`links` is an array that contains a set of url links for the programme item. Currently, `meeting` and `recording` are the valid link types.
 
 
-## People Array
+## People Object
 
 ```javascript
 var people = [
@@ -91,6 +94,8 @@ var people = [
 		"prog": [ "416" ],
 		"links": [
 			"img": "/images/galahad.jpg",
+			"photo": "/images/galahad.jpg",
+			"img_256_url": "/images/galahad.jpg",
 			"url": "http://en.wikipedia.org/wiki/Galahad"
 		],
 		"bio": "Sir Galahad (/ˈɡæləhæd/; Middle Welsh: Gwalchavad, sometimes referred to as Galeas /ɡəˈliːəs/ or Galath /ˈɡæləθ/), in Arthurian legend, is a knight of King Arthur's Round Table and one of the three achievers of the Holy Grail."
@@ -122,7 +127,12 @@ Note: The name field a different field in program.js’s `people` and in people.
 
 `prog` is an array of programme ids to which the person is assigned.
 
-`links` is an array of items for the person. Currently implemented is the `img` link which is a path to a thumbnail image of the person.
+`links` is an array of items for the person. 
+
+Currently implemented links are:
+- `img` - a link which is a path to a thumbnail image of the person;
+- `photo` - a link which is a path to a thumbnail image of the person;
+- `img_256_url` - a link which is a path to a thumbnail image of the person (used by Grenadine).
 
 `bio` is the biography of the person.
 

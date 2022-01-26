@@ -1,27 +1,28 @@
 import React, { useState } from "react";
+import { useStoreState, useStoreActions } from "easy-peasy";
 import PropTypes from "prop-types";
 import Participant from "./Participant";
 import configData from "../config.json";
 
-const People = ({ people }) => {
-  const storedThumbnails = localStorage.getItem("thumbnails"); // Get default thumbnails from local storage.
-  const [thumbnails, setThumbnails] = useState(
-    storedThumbnails === "false" ? false : true
-  ); // Default to true unless false explicitly stored.
-  const storedSort = localStorage.getItem("sort_people"); // Get default sort order from local storage.
-  const [sort, setSort] = useState(storedSort === "true" ? true : false);
+const People = () => {
+  const people = useStoreState((state) => state.people);
+  const showThumbnails = useStoreState((state) => state.showThumbnails);
+  const setShowThumbnails = useStoreActions(
+    (actions) => actions.setShowThumbnails
+  );
+  const sortByFullName = useStoreState((state) => state.sortByFullName);
+  const setSortByFullName = useStoreActions(
+    (actions) => actions.setSortByFullName
+  );
+
   const [search, setSearch] = useState("");
   //console.log(people);
   const rows = [];
 
   // Make a copy of people array, and apply filtering and sorting.
   let displayPeople = [...people];
-  if (sort)
-    displayPeople.sort((a, b) => {
-      if (a.name > b.name) return 1;
-      if (a.name < b.name) return -1;
-      return 0;
-    });
+  if (sortByFullName)
+    displayPeople.sort((a, b) => a.name.localeCompare(b.name));
   const term = search.trim().toLowerCase();
   if (term.length > 0)
     displayPeople = displayPeople.filter((person) => {
@@ -30,51 +31,57 @@ const People = ({ people }) => {
     });
   for (const person of displayPeople) {
     rows.push(
-      <Participant key={person.id} person={person} thumbnails={thumbnails} />
+      <Participant
+        key={person.id}
+        person={person}
+        thumbnails={
+          configData.PEOPLE.THUMBNAILS.SHOW_THUMBNAILS && showThumbnails
+        }
+      />
     );
   }
 
   function handleThumbnail(event) {
-    setThumbnails(event.target.checked);
-    localStorage.setItem("thumbnails", event.target.checked ? "true" : "false");
+    setShowThumbnails(event.target.checked);
   }
 
   function handleSort(event) {
-    setSort(event.target.checked);
-    localStorage.setItem(
-      "sort_people",
-      event.target.checked ? "true" : "false"
-    );
+    setSortByFullName(event.target.checked);
   }
 
   function handleSearch(event) {
     setSearch(event.target.value);
   }
 
+  const thumbnailCheckboxLabel =
+    configData.PEOPLE.THUMBNAILS.SHOW_THUMBNAILS ===
+    configData.PEOPLE.THUMBNAILS.SHOW_CHECKBOX
+      ? configData.PEOPLE.THUMBNAILS.CHECKBOX_LABEL
+      : configData.USELESS_CHECKBOX.CHECKBOX_LABEL;
   const thumbnailsCheckbox = configData.PEOPLE.THUMBNAILS.SHOW_CHECKBOX ? (
-    <div className="people-thumbnails">
+    <div className="people-thumbnails switch-wrapper">
       <input
         id="thumbnails"
         name="thumbnails"
+        className="switch"
         type="checkbox"
-        checked={thumbnails}
+        checked={showThumbnails}
         onChange={handleThumbnail}
       />
-      <label htmlFor="thumbnails">
-        {configData.PEOPLE.THUMBNAILS.CHECKBOX_LABEL}
-      </label>
+      <label htmlFor="thumbnails">{thumbnailCheckboxLabel}</label>
     </div>
   ) : (
     ""
   );
 
   const sortCheckbox = configData.PEOPLE.SORT.SHOW_CHECKBOX ? (
-    <div className="people-sort">
+    <div className="people-sort switch-wrapper">
       <input
         id="sort_people"
         name="sort_people"
+        className="switch"
         type="checkbox"
-        checked={sort}
+        checked={sortByFullName}
         onChange={handleSort}
       />
       <label htmlFor="sort_people">

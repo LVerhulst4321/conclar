@@ -1,137 +1,119 @@
-import React, { Component } from "react";
-import { ProgramSelection } from "../ProgramSelection";
+import DOMPurify from "dompurify";
+import { useStoreState, useStoreActions } from "easy-peasy";
 import Location from "./Location";
 import Tag from "./Tag";
 import Participant from "./Participant";
 import configData from "../config.json";
 //import PropTypes from 'prop-types'
 
-class ProgramItem extends Component {
-  state = {
-    expanded: false,
-    selected: false,
-  };
-  constructor(props) {
-    super(props);
-    //this.addActiveClass = this.addActiveClass.bind(this);
-    this.state = {
-      expanded: false,
-      selected: ProgramSelection.getSelection(this.props.item.id),
-    };
-    this.handleChange = this.handleChange.bind(this);
-  }
-  toggleDetails() {
-    let currentState = this.state;
-    currentState.expanded = !currentState.expanded;
-    this.setState({ currentState });
-    // this.setState(prevState => ({
-    //     expanded: !prevState.expanded
-    // }));
-    // alert(e.target.parent);
+const ProgramItem = ({ item }) => {
+  const selected = useStoreState((state) => state.isSelected(item.id));
+  const { addSelection, removeSelection } = useStoreActions((actions) => ({
+    addSelection: actions.addSelection,
+    removeSelection: actions.removeSelection,
+  }));
+
+  const expanded = useStoreState((state) => state.isExpanded(item.id));
+  const { expandItem, collapseItem } = useStoreActions((actions) => ({
+    expandItem: actions.expandItem,
+    collapseItem: actions.collapseItem,
+  }));
+
+  function toggleExpanded() {
+    if (expanded) collapseItem(item.id);
+    else expandItem(item.id);
   }
 
-  handleChange({ target }) {
-    let currentState = this.state;
-    currentState.selected = target.checked;
-    this.setState({ currentState });
-    ProgramSelection.setSelection(this.props.item.id, target.checked);
-    this.props.handler();
+  function handleSelected(event) {
+    if (event.target.checked) addSelection(item.id);
+    else removeSelection(item.id);
   }
 
-  render() {
-    let id = "item_" + this.props.item.id;
-    const locations = [];
-    if (Array.isArray(this.props.item.loc))
-      for (let loc of this.props.item.loc) {
-        locations.push(<Location key={loc} loc={loc} />);
-      }
-    else
-      locations.push(
-        <Location key={this.props.item.loc} loc={this.props.item.loc} />
-      );
-
-    const tags = [];
-    for (let tag of this.props.item.tags) {
-      tags.push(<Tag key={tag} tag={tag} />);
+  let id = "item_" + item.id;
+  const locations = [];
+  if (Array.isArray(item.loc))
+    for (let loc of item.loc) {
+      locations.push(<Location key={loc} loc={loc} />);
     }
-    // console.log(this.props.item.people);
-    const people = [];
-    if (this.props.item.people) {
-      this.props.item.people.forEach((person) => {
-        people.push(<Participant key={person.id} person={person} />);
-      });
-    }
-    const duration =
-      this.props.item.mins ? (
-        <div className="item-duration">{this.props.item.mins} mins</div>
-      ) : (
-        ""
-      );
-    const meetingLink =
-      this.props.item.links &&
-      this.props.item.links.meeting &&
-      this.props.item.links.meeting.length ? (
-        <div className="item-links-meeting">
-          <a href={this.props.item.links.meeting}>{configData.LINKS.MEETING}</a>
-        </div>
-      ) : (
-        ""
-      );
-    const recordingLink =
-      this.props.item.links &&
-      this.props.item.links.recording &&
-      this.props.item.links.recording.length ? (
-        <div className="item-links-recording">
-          <a href={this.props.item.links.recording}>
-            {configData.LINKS.RECORDING}
-          </a>
-        </div>
-      ) : (
-        ""
-      );
+  else locations.push(<Location key={item.loc} loc={item.loc} />);
 
-    return (
-      <div id={id} className="item">
-        <div className="item-selection">
-          <div className="selection">
-            <input
-              type="checkbox"
-              className="selection-control"
-              checked={this.state.selected}
-              onChange={this.handleChange}
-              onClick={this.handleChange}
-            />
-          </div>
+  const tags = [];
+  for (let tag of item.tags) {
+    tags.push(<Tag key={tag} tag={tag} />);
+  }
+
+  const people = [];
+  if (item.people) {
+    item.people.forEach((person) => {
+      people.push(<Participant key={person.id} person={person} />);
+    });
+  }
+  const safeDesc = DOMPurify.sanitize(item.desc);
+  const meetingLink =
+    item.links && item.links.meeting && item.links.meeting.length ? (
+      <div className="item-links-meeting">
+        <a href={item.links.meeting}>{configData.LINKS.MEETING}</a>
+      </div>
+    ) : (
+      ""
+    );
+  const recordingLink =
+    item.links && item.links.recording && item.links.recording.length ? (
+      <div className="item-links-recording">
+        <a href={item.links.recording}>{configData.LINKS.RECORDING}</a>
+      </div>
+    ) : (
+      ""
+    );
+  const duration =
+    configData.DURATION.SHOW_DURATION && item.mins ? (
+      <div className="item-duration">
+        {configData.DURATION.DURATION_LABEL.replace("@mins", item.mins)}
+      </div>
+    ) : (
+      ""
+    );
+
+  return (
+    <div id={id} className="item">
+      <div className="item-selection">
+        <div className="selection">
+          <input
+            type="checkbox"
+            className="selection-control"
+            checked={selected}
+            onChange={handleSelected}
+          />
         </div>
-        <div className="item-entry" onClick={this.toggleDetails.bind(this)}>
-          <div className="item-title">{this.props.item.title}</div>
+      </div>
+      <div className="item-entry" onClick={toggleExpanded}>
+        <div className="item-title">{item.title}</div>
+        <div className="item-line2">
           <div className="item-location">{locations}</div>
           {duration}
+        </div>
+        <div
+          className={
+            expanded ? "item-details item-details-expanded" : "item-details"
+          }
+        >
+          <div className="item-people">
+            <ul>{people}</ul>
+          </div>
+          <div className="item-tags">{tags}</div>
           <div
-            className={
-              this.state.expanded
-                ? "item-details item-details-expanded"
-                : "item-details"
-            }
-          >
-            <div className="item-people">
-              <ul>{people}</ul>
-            </div>
-            <div className="item-tags">{tags}</div>
-            <div
-              className="item-description"
-              dangerouslySetInnerHTML={{ __html: this.props.item.desc }}
-            />
-            <div className="item-links">
-              {meetingLink}
-              {recordingLink}
-            </div>
+            className="item-description"
+            dangerouslySetInnerHTML={{ __html: safeDesc }}
+          />
+          <div className="item-links">
+            {meetingLink}
+            {recordingLink}
           </div>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 // ProgramItem.PropTypes = {
 //     item: PropTypes.object

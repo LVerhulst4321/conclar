@@ -1,33 +1,52 @@
 import React, { useState } from "react";
 import ReactSelect from "react-select";
+import { useStoreState, useStoreActions } from "easy-peasy";
 import ProgramList from "./ProgramList";
 import configData from "../config.json";
 import { LocalTime } from "../utils/LocalTime";
 
-const FilterableProgram = ({ program, locations, tags, offset, handler }) => {
+const FilterableProgram = () => {
+  const program = useStoreState((state) => state.program);
+  const locations = useStoreState((state) => state.locations);
+  const tags = useStoreState((state) => state.tags);
+  const offset = useStoreState((state) => state.offset);
+
+  const showLocalTime = useStoreState((state) => state.showLocalTime);
+  const setShowLocalTime = useStoreActions(
+    (actions) => actions.setShowLocalTime
+  );
+  const show12HourTime = useStoreState((state) => state.show12HourTime);
+  const setShow12HourTime = useStoreActions(
+    (actions) => actions.setShow12HourTime
+  );
+  const showPastItems = useStoreState((state) => state.showPastItems);
+  const setShowPastItems = useStoreActions(
+    (actions) => actions.setShowPastItems
+  );
+  const { expandAll, collapseAll } = useStoreActions((actions) => ({
+    expandAll: actions.expandAll,
+    collapseAll: actions.collapseAll,
+  }));
+  const noneExpanded = useStoreState((state) => state.noneExpanded);
+  const allExpanded = useStoreState((state) => state.allExpanded);
+
   const [search, setSearch] = useState("");
   const [selLoc, setSelLoc] = useState([]);
   const [selTags, setSelTags] = useState({});
-  // Get default show local time from local storage.
-  const [showLocalTime, setShowLocalTime] = useState(
-    LocalTime.getStoredLocalTime()
-  );
-  const [show12HourTime, setShow12HourTime] = useState(
-    LocalTime.getStoredTwelveHourTime()
-  );
 
   const filtered = applyFilters(program);
   const total = filtered.length;
   const totalMessage = `Listing ${total} items`;
 
   const localTimeCheckbox =
-    offset === 0 ? (
+    offset === null || offset === 0 ? (
       ""
     ) : (
-      <div className="local-time-checkbox">
+      <div className="local-time-checkbox switch-wrapper">
         <input
           id={LocalTime.localTimeClass}
           name={LocalTime.localTimeClass}
+          className="switch"
           type="checkbox"
           checked={showLocalTime}
           onChange={handleShowLocalTime}
@@ -39,10 +58,11 @@ const FilterableProgram = ({ program, locations, tags, offset, handler }) => {
     );
 
   const show12HourTimeCheckbox = configData.TIME_FORMAT.SHOW_CHECKBOX ? (
-    <div className={LocalTime.twelveHourTimeClass + "-checkbox"}>
+    <div className={LocalTime.twelveHourTimeClass + "-checkbox switch-wrapper"}>
       <input
         id={LocalTime.twelveHourTimeClass}
         name={LocalTime.twelveHourTimeClass}
+        className="switch"
         type="checkbox"
         checked={show12HourTime}
         onChange={handleShow12HourTime}
@@ -54,6 +74,25 @@ const FilterableProgram = ({ program, locations, tags, offset, handler }) => {
   ) : (
     ""
   );
+
+  //Nice to have a check here for whether it's during con right now.
+  const pastItemsCheckbox = isDuringCon(program) && configData.SHOW_PAST_ITEMS.SHOW_CHECKBOX ? ( 
+    <div className="past-items-checkbox switch-wrapper">
+      <input
+        id={LocalTime.pastItemsClass}
+        name={LocalTime.pastItemsClass}
+        className="switch"
+        type="checkbox"
+        checked={showPastItems}
+        onChange={handleShowPastItems}
+      />
+      <label htmlFor={LocalTime.pastItemsClass}>
+        {configData.SHOW_PAST_ITEMS.CHECKBOX_LABEL}
+      </label>
+    </div>
+    ) : (
+			""
+		);
 
   function applyFilters(program) {
     const term = search.trim().toLowerCase();
@@ -102,7 +141,20 @@ const FilterableProgram = ({ program, locations, tags, offset, handler }) => {
         });
       }
     }
+    if (isDuringCon(program) && !showPastItems) {
+      // Filter by past item state.  Quick hack to treat this as a filter.
+      const now = LocalTime.dateToConTime(new Date());
+      //console.log("Showing items after", now.date, now.time, "(adjusted con time).");
+      filtered = filtered.filter((item) => {
+        // eslint-disable-next-line
+        return (now.date < item.date) || (now.date === item.date && now.time <= item.time);
+      });
+    }
     return filtered;
+  }
+
+  function isDuringCon(program) {
+    return program && program.length ? LocalTime.inConTime(program) : false;
   }
 
   function handleSearch(event) {
@@ -129,6 +181,11 @@ const FilterableProgram = ({ program, locations, tags, offset, handler }) => {
     LocalTime.setStoredTwelveHourTime(event.target.checked);
   }
 
+  function handleShowPastItems(event) {
+    setShowPastItems(event.target.checked);
+    LocalTime.setStoredPastItems(event.target.checked);
+  }
+
   // TODO: Probably should move the tags filter to its own component.
   const tagFilters = [];
   for (const tag in tags) {
@@ -137,13 +194,15 @@ const FilterableProgram = ({ program, locations, tags, offset, handler }) => {
     });
     // Only add drop-down if tag type actually contains elements.
     if (tags[tag].length) {
-      const placeholder = tagData ? tagData.PLACEHOLDER : "Select tags";
+      const placeholder = tagData ? tagData.PLACEHOLDER : configData.TAGS.PLACEHOLDER;
+      const searchable = tagData ? tagData.SEARCHABLE : configData.TAGS.SEARCHABLE;
       tagFilters.push(
         <div key={tag} className={"filter-tags filter-tags-" + tag}>
           <ReactSelect
             placeholder={placeholder}
             options={tags[tag]}
             isMulti
+            isSearchable={searchable}
             value={selTags[tag]}
             onChange={(value) => handleTags(tag, value)}
           />
@@ -160,6 +219,7 @@ const FilterableProgram = ({ program, locations, tags, offset, handler }) => {
             placeholder="Select locations"
             options={locations}
             isMulti
+            isSearchable={configData.LOCATIONS.SEARCHABLE}
             value={selLoc}
             onChange={handleLoc}
           />
@@ -174,13 +234,18 @@ const FilterableProgram = ({ program, locations, tags, offset, handler }) => {
           />
         </div>
         <div className="filter-total">{totalMessage}</div>
+        <div className="filter-expand">
+          <button disabled={allExpanded} onClick={expandAll}>{configData.EXPAND.EXPAND_ALL_LABEL}</button>
+          <button disabled={noneExpanded} onClick={collapseAll}>{configData.EXPAND.COLLAPSE_ALL_LABEL}</button>
+        </div>
         <div className="filter-options">
           {localTimeCheckbox}
           {show12HourTimeCheckbox}
+          {pastItemsCheckbox}
         </div>
       </div>
-      <div className="program-container">
-        <ProgramList program={filtered} offset={offset} handler={handler} />
+      <div className="program-page">
+        <ProgramList program={filtered} />
       </div>
     </div>
   );
