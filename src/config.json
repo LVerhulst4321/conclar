@@ -19,6 +19,7 @@
     "PLACEHOLDER": "Select tags",
     "SEARCHABLE": false,
     "SEPARATE": [
+      { "PREFIX": "Day", "PLACEHOLDER": "Select day", "SEARCHABLE": false },
       { "PREFIX": "Division", "PLACEHOLDER": "Select division", "SEARCHABLE": true },
       { "PREFIX": "Track", "PLACEHOLDER": "Select track", "SEARCHABLE": true }
     ],
@@ -46,12 +47,12 @@
   },
   "DURATION": {
     "SHOW_DURATION": true,
-    "DURATION_LABEL": "Duration: @mins mins"
+    "DURATION_LABEL": "- @mins mins"
   },
   "SHOW_PAST_ITEMS": {
     "SHOW_CHECKBOX": true,
     "CHECKBOX_LABEL": "Show past items",
-    "ADJUST_MINUTES": 10
+    "ADJUST_MINUTES": 15
   },
   "PEOPLE": {
     "THUMBNAILS": {
