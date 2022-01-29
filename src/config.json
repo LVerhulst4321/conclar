@@ -1,5 +1,6 @@
 {
   "BASE_PATH": "/",
+  "APP_ID": "CAP42",
   "APP_TITLE": "Capricon 42 Program Guide",
   "PROGRAM_DATA_URL": "https://guide.capricon.org/konOpasData.json",
   "PEOPLE_DATA_URL": "https://guide.capricon.org/konOpasData.json",
@@ -11,11 +12,22 @@
     "INFO": "Information",
     "EXTRA": []
   },
+  "LOCATIONS": {
+    "SEARCHABLE": false
+  },
   "TAGS": {
+    "PLACEHOLDER": "Select tags",
+    "SEARCHABLE": false,
     "SEPARATE": [
-      { "PREFIX": "Division", "PLACEHOLDER": "Select division" },
-      { "PREFIX": "Track", "PLACEHOLDER": "Select track" }
-    ]
+      { "PREFIX": "Day", "PLACEHOLDER": "Select day", "SEARCHABLE": false },
+      { "PREFIX": "Division", "PLACEHOLDER": "Select division", "SEARCHABLE": true },
+      { "PREFIX": "Track", "PLACEHOLDER": "Select track", "SEARCHABLE": true }
+    ],
+    "FORMAT_AS_TAG": false
+  },
+  "EXPAND": {
+    "EXPAND_ALL_LABEL": "Expand All",
+    "COLLAPSE_ALL_LABEL": "Collapse All"
   },
   "LINKS": {
     "MEETING": "Click to view stream",
@@ -33,11 +45,21 @@
     "SHOW_CHECKBOX": true,
     "CHECKBOX_LABEL": "Show 12 hour time"
   },
+  "DURATION": {
+    "SHOW_DURATION": true,
+    "DURATION_LABEL": "- @mins mins"
+  },
+  "SHOW_PAST_ITEMS": {
+    "SHOW_CHECKBOX": true,
+    "CHECKBOX_LABEL": "Show past items",
+    "ADJUST_MINUTES": 15
+  },
   "PEOPLE": {
     "THUMBNAILS": {
       "SHOW_THUMBNAILS": false,
       "SHOW_CHECKBOX": false,
-      "CHECKBOX_LABEL": "Show thumbnails"
+      "CHECKBOX_LABEL": "Show thumbnails",
+      "DEFAULT_IMAGE": ""
     },
     "SORT": {
       "SHOW_CHECKBOX": true,
@@ -46,7 +68,11 @@
     "SEARCH": {
       "SHOW_SEARCH": true,
       "SEARCH_LABEL": "Search people"
-    }
+    },
+    "PERSON_HEADER": "Person: "
+  },
+  "USELESS_CHECKBOX": {
+    "CHECKBOX_LABEL": "Useless checkbox"
   },
   "INFORMATION": {
     "MARKDOWN_URL": "capricon_info.md",

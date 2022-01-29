@@ -1,16 +1,34 @@
 import React from "react";
+import { useStoreState } from "easy-peasy";
 import { useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import ProgramList from "./ProgramList";
+import configData from "../config.json";
 
-const Person = ({ people, program, offset, handler }) => {
+const Person = () => {
+  const program = useStoreState((state) => state.program);
+  const people = useStoreState((state) => state.people);
   const params = useParams();
-  const person = people.find((person) => person.id === params.id);
-  const img = (person.links && person.links.img) ? <img src={person.links.img} alt={person.name} /> : "";
-  const safeBio = DOMPurify.sanitize(person.bio);
+  const person = people.find((person) => person.id.toString() === params.id);
+  if (!person)
+    return (
+      <div className="error">
+        Person id <span>{params.id}</span> was not found.
+      </div>
+    );
+  const img =
+    (person.img) ? (
+      <img src={person.img} alt={person.name} />
+    ) : (
+      ""
+    );
+  const safeBio = person.bio ? DOMPurify.sanitize(person.bio) : "";
   return (
     <div className="person">
-      <h2 className="person-name">Person: {person.name}</h2>
+      <h2 className="person-name">
+        <span className="person-title">{configData.PEOPLE.PERSON_HEADER}</span>
+        {person.name}
+      </h2>
       <div className="person-image">{img}</div>
       <div
         className="person-bio"
@@ -20,13 +38,11 @@ const Person = ({ people, program, offset, handler }) => {
         program={program.filter((item) => {
           if (item.people) {
             for (const person of item.people) {
-              if (person.id === params.id) return true;
+              if (person.id.toString() === params.id) return true;
             }
           }
           return false;
         })}
-        offset={offset}
-        handler={handler}
       />
     </div>
   );

@@ -15,21 +15,57 @@
  * 1. Global application styles.
  */
 
+:root {
+  --main-bg: #eafaf1;
+  --main-fg: #000;
+  --navigation-button-bg: #e6e6fa;
+  --navigation-button-fg: #9400d3;
+  --navigation-button-border: #e2e8f0;
+  --navigation-button-hover-bg: #1e293b;
+  --navigation-button-hover-fg: #fff;
+  --checkbox-switch-bg: white;
+  --checkbox-selected-bg: green;
+  --checkbox-unselected-bg: red;
+  --program-time-local-message: grey;
+  --program-date-line: #9400d3;
+  --program-time-line: #9400d3;
+  --program-item-line: #e6e6fa;
+  --program-tags-fg: #888;
+  --program-expanded-bg: #e6e6fa;
+  --participant-link-fg: #000;
+  --participant-link-visited-fg: #444;
+  --footer-line: #888;
+  --error-message-fg: tomato;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--main-bg);
+  color: var(--main-fg);
+}
+
 .App {
   text-align: left;
   margin: 1rem;
-  font-family: 'Roboto', 'Open Sans', 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Roboto', 'Calibri', 'Open Sans', 'Lato', 'Helvetica Neue', Arial, sans-serif;
 }
 
 h1, h2, h3, h4, .item-title, .date-heading {
   font-family: Candara, Optima, Segoe, 'Segoe UI', sans-serif;
 }
 
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
 /*
  * 2. Application header.
  */
 
- header {
+header {
   text-align: center;
 }
 
@@ -41,8 +77,9 @@ header h1 {
  * 3. Navigation.
  */
 
- .navigation ul {
-  display:flex;
+.navigation ul {
+  display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
   padding-inline-start: 0;
   list-style-type: none;
@@ -54,11 +91,11 @@ header h1 {
 
 /* CSS for button 81 from https://getcssscan.com/css-buttons-examples */
 .navigation li a {
-  background-color: lavender;
-  border: 0 solid #e2e8f0;
+  background-color: var(--navigation-button-bg);
+  color: var(--navigation-button-fg);
+  border: 0 solid var(--navigation-button-border);
   border-radius: 1rem;
   box-sizing: border-box;
-  color: darkviolet;
   cursor: pointer;
   display: inline-block;
   font-family: "Basier circle",-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
@@ -67,31 +104,44 @@ header h1 {
   line-height: 1;
   padding: .6rem 1.1rem;
   text-align: center;
-  text-decoration: none #0d172a solid;
+  text-decoration: none;
   text-decoration-thickness: auto;
   transition: all .1s cubic-bezier(.4, 0, .2, 1);
   box-shadow: 0px 1px 2px rgba(166, 175, 195, 0.25);
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
+  /* don't line-break individual links */
   white-space: nowrap;
 }
 
 .navigation li a:hover {
-  background-color: #1e293b;
-  color: #fff;
+  background-color: var(--navigation-button-hover-bg);
+  color: var(--navigation-button-hover-fg);
 }
 
 @media (min-width: 768px) {
-  .button-81 {
-    font-size: 1.125rem;
-    padding: 1rem 2rem;
+  .navigation li a {
+    font-size: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 2rem;
   }
+}
+
+.error {
+  text-align: center;
+  color: var(--error-message-fg);
+  font-size: larger;
+  margin: 3rem;
+}
+.error span {
+  font-weight: bold;
 }
 
 .filter-locations {
   display: inline-block;
   font-size: .8em;
+  padding: 0 0.5em 0.5em 0;
 }
 
 .filter-tags {
@@ -100,49 +150,103 @@ header h1 {
   padding: 0 0.5em 0.5em 0;
 }
 
-.filter-search {
-  font-size: .8em;
-}
-
 .filter-total {
   margin: 0.3rem 0 1rem 0;
 }
 
-.local-time-checkbox,
-.twelve_hour_time-checkbox {
-  float: left;
+/* Removing for now to prevent odd display of checkboxes in middle of row, and weird display in Firefox.
+div.filter-options {
+  float: right;
+}
+*/
+
+/* style all non-selection checkboxes as toggles
+   based on https://www.sitepoint.com/css3-toggle-switch/ */
+
+div.switch-wrapper {
+  font-size: smaller;
 }
 
-/* style all non-selection checkboxes as buttons */
-input[type=checkbox] ~ label {
-  border: 2px solid red;
-  border-radius: 1rem;
-  padding: 0.2rem 0.4rem;
-  margin: 0 0.1rem 0.2rem 0;
-  color: red;
-  font-size: smaller;
-  text-decoration: line-through;
-  display: inline-block;
+div.switch-wrapper,
+div.switch-wrapper ~ div {
+  clear: both;
+  margin: 0.5em 1em;
 }
-input[type=checkbox]:checked ~ label {
-  color: green;
-  border-color: green;
-  text-decoration: none;
+
+input.switch:empty {
+  display:none;
 }
-input[type=checkbox] {
-    display:none;
+
+input.switch:empty ~ label {
+  position: relative;
+  float: left;
+  line-height: 1.6em;
+  text-indent: 3.4em;
+  margin: 0.2em 0;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
-input.selection-control {
-    display:unset;
+
+input.switch:empty ~ label:before, 
+input.switch:empty ~ label:after {
+  position: absolute;
+  display: block;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  content: ' ';
+  width: 3em;
+  background-color: var(--checkbox-unselected-bg);
+  border-radius: 1em;
+  box-shadow: inset 0 0.2em 0 rgba(0,0,0,0.3);
+  -webkit-transition: all 100ms ease-in;
+  transition: all 100ms ease-in;
+}
+
+input.switch:empty ~ label:after {
+  width: 1.4em;
+  top: 0.1em;
+  bottom: 0.1em;
+  margin-left: 0.1em;
+  background-color:  var(--checkbox-switch-bg);
+  border-radius: 0.9em;
+  box-shadow: inset 0 -0.2em 0 rgba(0,0,0,0.2);
+}
+
+input.switch:checked ~ label:before {
+  background-color:  var(--checkbox-selected-bg);
+}
+
+input.switch:checked ~ label:after {
+  margin-left: 1.5em;
 }
 
 /*
  * 4. Program.
  */
 
+/* styles not applied to participants' subprograms */
+/* .program-page {
+} */
+
+.program-empty {
+  font-style: italic;
+  padding-top: 1rem;
+}
+
 .program-container {
   margin-top: 0.5rem;
-  clear:both;
+  clear: both;
+  display: flex;
+  flex-direction: column;
+}
+
+.time-local-message {
+  font-style: italic;
+  color: var(--program-time-local-message);
 }
 
 .date-heading {
@@ -150,62 +254,86 @@ input.selection-control {
   font-weight: bold;
   margin-top: 1rem;
   margin-bottom: 0.5rem;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid var(--program-date-line);
 }
 
 .timeslot {
-  display: block;
   margin: 0.5rem;
-  border-bottom: 1px solid gray;
+  border-bottom: 1px solid var(--program-time-line);
+  display: flex;
 }
 
 .timeslot-time {
-  display: inline-block;
-  min-width: 10ch;
+  min-width: 8ch;
   vertical-align: top;
+  flex-grow: 0;
 }
 
 .timeslot-items {
-  display: inline-block;
-  width: 90%;
   vertical-align: top;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .item {
   margin-bottom: 0.25rem;
   max-width: 60ch;
-  border: 1px solid darkviolet;
+  display: flex;
+}
+
+.item ~ .item {
+  border-top: 1px solid var(--program-item-line);
+  padding-top: 0.5rem;
 }
 
 .item-selection {
-  display: inline-block;
-  min-width: 5ch;
-  vertical-align: top;
+  min-width: 3ch;
+  vertical-align: baseline;
+  flex-grow: 0;
+  text-align: center;
 }
 
 .item-entry {
-  display: inline-block;
+  display: flex;
   max-width: 55ch;
+  flex-grow: 1;
+  flex-direction: column;
+  flex-wrap: wrap;
+  word-break: break-word;
 }
 
 .item-title {
   font-weight: bold;
 }
 
-.item-location,
 .item-duration,
+.item-location,
 .item-tags {
   font-size: 0.9em;
-  color: #888;
+  color: var(--program-tags-fg);
 }
 
-.item-tag {
+.item-tag,
+.item-location {
   display: inline-block;
   margin-right: 0.5rem;
 }
 
+/* To put duration on its own line, remove this bit. */
+.item-duration {
+  display: inline-block;
+  margin-right: 0.5rem;
+  white-space:nowrap;
+}
+
 .item-people {
   margin: 0.5rem 0;
+}
+
+.item-people ul {
+  margin:0;
+  padding:0;
 }
 
 .item-people .participant {
@@ -215,6 +343,18 @@ input.selection-control {
 
 .item-people .participant img {
   max-width: 2rem;
+  border-radius:50%;
+  vertical-align:middle;
+  padding: 0.1rem;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.14) , 0px 3px 1px -2px rgba(0,0,0,0.12) , 0px 1px 5px 0px rgba(0,0,0,0.2);
+}
+
+.item-people div.participant-image {
+  display: inline-block;
+}
+
+.program-container .participant .participant-image ~ span {
+ padding-left: 0.3rem;
 }
 
 .item-details {
@@ -225,9 +365,14 @@ input.selection-control {
   overflow: hidden;
 }
 
+.item-entry > .item-details.item-details-expanded {
+  background-color: var(--program-expanded-bg);
+}
+
 .item-details-expanded {
-  background-color: lavender;
   max-height: 40rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
 }
 
 .time-convention {
@@ -237,6 +382,7 @@ input.selection-control {
 .time-local {
   font-style: italic;
   font-size: 0.9em;
+  padding-left: 0.2em;
 }
 
 /*
@@ -245,6 +391,16 @@ input.selection-control {
 
 .people ul {
   column-width: 25ch;
+}
+
+.participant a {
+  color: var(--participant-link-fg);
+}
+
+.participant a:active,
+.participant a:hover,
+.participant a:visited {
+  color: var(--participant-link-visited-fg);
 }
 
 .people .participant {
@@ -260,19 +416,34 @@ input.selection-control {
 
 .people .participant img {
   max-width: 5rem;
+  border-radius:50%;
+  vertical-align:middle;
+  padding: 0.1rem;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.14) , 0px 3px 1px -2px rgba(0,0,0,0.12) , 0px 1px 5px 0px rgba(0,0,0,0.2);
 }
 
 .person {
-  margin: 1rem;
+  margin: 1rem 0;
 }
 
 .person .person-image img {
   max-width: 10rem;
+  padding: 0.3rem;
+  margin: 0 0.5rem 0.5rem 0;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.14) , 0px 3px 1px -2px rgba(0,0,0,0.12) , 0px 1px 5px 0px rgba(0,0,0,0.2);
 }
 
 .person .person-bio {
   max-width: 60ch;
 }
+
+.person .time-local-message {
+  margin-top: 1rem;
+}
+
+/* program styles only applied to participants' subprograms */
+/* .person .program-container {
+} */
 
 /*
  * 6. Information page.
@@ -289,5 +460,7 @@ input.selection-control {
 
  footer {
   margin-top: 2rem;
-  border-top: 1px solid gray;
+/* often there is already a border before this element so omit:
+  border-top: 1px solid var(--footer-line); */
+  text-align: right;
 }
