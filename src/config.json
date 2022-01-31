@@ -31,6 +31,7 @@
     "COLLAPSE_ALL_LABEL": "Collapse All"
   },
   "LINKS": {
+    "SIGNUP": "Click to sign up",
     "MEETING": "Click to view stream",
     "RECORDING": "Click to view recording"
   },
@@ -56,6 +57,9 @@
     "ADJUST_MINUTES": 15
   },
   "PEOPLE": {
+    "MODERATORS": {
+      "MODERATOR_LABEL": "(moderator)"
+    },
     "THUMBNAILS": {
       "SHOW_THUMBNAILS": false,
       "SHOW_CHECKBOX": false,
