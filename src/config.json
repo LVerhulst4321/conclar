@@ -11,7 +11,7 @@
     "PEOPLE": "People",
     "MYSCHEDULE": "My Schedule",
     "INFO": "Information",
-    "EXTRA": []
+    "EXTRA": [{ "LABEL": "Virtual Capricon", "URL": "https://virtual.capricon.org" }]
   },
   "LOCATIONS": {
     "SEARCHABLE": false
