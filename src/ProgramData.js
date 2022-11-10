@@ -66,12 +66,13 @@ export class ProgramData {
     program.map((item) => {
       const startTime = this.processDateAndTime(item);
       item.dateAndTime = startTime.withTimeZone(utcTimeZone);
+      item.timeSlot = LocalTime.getTimeSlot(item.dateAndTime);
       return item;
     });
     program.sort((a, b) => {
       return Temporal.ZonedDateTime.compare(a.dateAndTime, b.dateAndTime);
     });
-    //console.log(program);
+    //console.log("Program data", program);
     return program;
   }
 
@@ -122,8 +123,11 @@ export class ProgramData {
             item.people.splice(index, 1);
           }
           //Moderator check before nuking the item person data.
-          if (item.people[index].name.indexOf("(moderator)") > 0 || 
-              (item.people[index].hasOwnProperty("role") && item.people[index].role === "moderator"))
+          if (
+            item.people[index].name.indexOf("(moderator)") > 0 ||
+            (item.people[index].hasOwnProperty("role") &&
+              item.people[index].role === "moderator")
+          )
             item.moderator = item.people[index].id;
           if (fullPerson) {
             // Replace partial person with full person reference.
@@ -370,8 +374,8 @@ export class ProgramData {
    * @param {string} url
    * @returns {object}
    */
-  static async fetchUrl(url) {
-    const res = await fetch(url, configData.FETCH_OPTIONS);
+  static async fetchUrl(url, fetchOptions) {
+    const res = await fetch(url, fetchOptions);
     const data = await res.text();
     return JsonParse.extractJson(data);
   }
@@ -381,20 +385,24 @@ export class ProgramData {
    *
    * @returns {array}
    */
-  static async fetchData() {
+  static async fetchData(firstTime) {
     //setLoadingMessage
     try {
+      console.log("Fetching:", firstTime ? "First time" : "Refreshing");
+      const fetchOptions = firstTime
+        ? configData.FETCH_OPTIONS_FIRST
+        : configData.FETCH_OPTIONS;
       // If only one data source, we can use a single fetch.
       if (configData.PROGRAM_DATA_URL === configData.PEOPLE_DATA_URL) {
         const [rawProgram, rawPeople] = await this.fetchUrl(
-          configData.PROGRAM_DATA_URL
+          configData.PROGRAM_DATA_URL, fetchOptions
         );
         return ProgramData.processData(rawProgram, rawPeople);
       } else {
         // Separate program and people sources, so need to create promise for each fetch.
         const [[rawProgram], [rawPeople]] = await Promise.all([
-          this.fetchUrl(configData.PROGRAM_DATA_URL),
-          this.fetchUrl(configData.PEOPLE_DATA_URL),
+          this.fetchUrl(configData.PROGRAM_DATA_URL, fetchOptions),
+          this.fetchUrl(configData.PEOPLE_DATA_URL, fetchOptions),
         ]);
         // Called with an array containing result of each promise.
         return ProgramData.processData(rawProgram, rawPeople);

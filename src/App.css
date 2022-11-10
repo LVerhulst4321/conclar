@@ -36,6 +36,8 @@
   --reset-button-fg: var(--navigation-button-current-fg);
   --add-all-button-bg: var(--navigation-button-current-bg);
   --add-all-button-fg: var(--navigation-button-current-fg);
+  --add-more-button-bg: var(--navigation-button-current-bg);
+  --add-more-button-fg: var(--navigation-button-current-fg);
   --program-item-chevron-collapsed: #ccc;
   --program-item-chevron-expanded: #bbe;
   --program-time-convention-message: grey;
@@ -374,11 +376,19 @@ input.switch:checked ~ label:after {
 }
 
 .date-heading {
+  position: sticky;
+  top: 0;
   font-size: 1.5rem;
   font-weight: bold;
-  margin-top: 1rem;
+  margin-top: 0rem;
   margin-bottom: 0.5rem;
+  padding-top: 1rem;
   border-bottom: 1px solid var(--program-date-line);
+  background-color: var(--main-bg);
+}
+
+.debug-mode .date-heading {
+  padding-top: 3rem;
 }
 
 .timeslot {
@@ -395,6 +405,17 @@ input.switch:checked ~ label:after {
 
 .timeslot-wide {
   min-width: 12ch;
+}
+
+.time-wrapper {
+  position: sticky;
+  top: 3rem;
+  z-index: -1;
+}
+
+.debug-mode .time-wrapper {
+  position: sticky;
+  top: 5rem;
 }
 
 .time-convention {
@@ -573,6 +594,23 @@ input.switch:checked ~ label:after {
 
 .share-qr-code {
   margin: 0.25rem;
+}
+
+/* When limit on displayed items, show more button. */
+
+.result-more-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.show-more-button {
+  background-color: var(--add-more-button-bg);
+  color: var(--add-more-button-fg);
+  font-size: 1rem;
+  padding: .5rem 1.5rem;
+  border: none;
+  border-radius: 1.5rem;
 }
 
 /* ItemIDs page, showing shared items. */
