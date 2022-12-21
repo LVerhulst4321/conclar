@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { useStoreState, useStoreActions } from "easy-peasy";
 import PropTypes from "prop-types";
+import { useStoreState, useStoreActions } from "easy-peasy";
+import TagSelectors from "./TagSelectors";
+import ResetButton from "./ResetButton";
 import Participant from "./Participant";
 import configData from "../config.json";
 
 const People = () => {
   const people = useStoreState((state) => state.people);
+  const personTags = useStoreState((state) => state.personTags);
   const showThumbnails = useStoreState((state) => state.showThumbnails);
   const setShowThumbnails = useStoreActions(
     (actions) => actions.setShowThumbnails
@@ -15,43 +17,50 @@ const People = () => {
     (actions) => actions.setSortByFullName
   );
 
-  const [search, setSearch] = useState("");
-  //console.log(people);
-  const rows = [];
+  const selTags = useStoreState((state) => state.peopleSelectedTags);
+  const setSelTags = useStoreActions(
+    (actions) => actions.setPeopleSelectedTags
+  );
+  const search = useStoreState((state) => state.peopleSearch);
+  const setSearch = useStoreActions((actions) => actions.setPeopleSearch);
+  const peopleAreFiltered = useStoreState((state) => state.peopleAreFiltered);
+
+  const resetPeopleFilters = useStoreActions((actions) => actions.resetPeopleFilters);
 
   // Make a copy of people array, and apply filtering and sorting.
   let displayPeople = [...people];
   if (sortByFullName)
     displayPeople.sort((a, b) => a.name.localeCompare(b.name));
+  // Filter by each tag dropdown.
+  for (const tagType in selTags) {
+    if (selTags[tagType].length) {
+      displayPeople = displayPeople.filter((item) => {
+        if (item.hasOwnProperty("tags")) {
+          for (const tag of item.tags) {
+            for (const selected of selTags[tagType]) {
+              if (selected.value === tag.value) return true;
+            }
+          }
+        }
+        return false;
+      });
+    }
+  }
   const term = search.trim().toLowerCase();
   if (term.length > 0)
     displayPeople = displayPeople.filter((person) => {
       if (person.name.toLowerCase().includes(term)) return true;
       return false;
     });
-  for (const person of displayPeople) {
-    rows.push(
-      <Participant
-        key={person.id}
-        person={person}
-        thumbnails={
-          configData.PEOPLE.THUMBNAILS.SHOW_THUMBNAILS && showThumbnails
-        }
-      />
-    );
-  }
-
-  function handleThumbnail(event) {
-    setShowThumbnails(event.target.checked);
-  }
-
-  function handleSort(event) {
-    setSortByFullName(event.target.checked);
-  }
-
-  function handleSearch(event) {
-    setSearch(event.target.value);
-  }
+  const rows = displayPeople.map((person) => (
+    <Participant
+      key={person.id}
+      person={person}
+      thumbnails={
+        configData.PEOPLE.THUMBNAILS.SHOW_THUMBNAILS && showThumbnails
+      }
+    />
+  ));
 
   const thumbnailCheckboxLabel =
     configData.PEOPLE.THUMBNAILS.SHOW_THUMBNAILS ===
@@ -66,7 +75,7 @@ const People = () => {
         className="switch"
         type="checkbox"
         checked={showThumbnails}
-        onChange={handleThumbnail}
+        onChange={(e) => setShowThumbnails(e.target.checked)}
       />
       <label htmlFor="thumbnails">{thumbnailCheckboxLabel}</label>
     </div>
@@ -82,7 +91,7 @@ const People = () => {
         className="switch"
         type="checkbox"
         checked={sortByFullName}
-        onChange={handleSort}
+        onChange={(e) => setSortByFullName(e.target.checked)}
       />
       <label htmlFor="sort_people">
         {configData.PEOPLE.SORT.CHECKBOX_LABEL}
@@ -95,9 +104,9 @@ const People = () => {
   const searchInput = configData.PEOPLE.SEARCH.SHOW_SEARCH ? (
     <div className="people-search">
       <input
-        type="text"
+        type="search"
         value={search}
-        onChange={handleSearch}
+        onChange={(e) => setSearch(e.target.value)}
         placeholder={configData.PEOPLE.SEARCH.SEARCH_LABEL}
       />
     </div>
@@ -110,7 +119,19 @@ const People = () => {
       <div className="people-settings">
         {thumbnailsCheckbox}
         {sortCheckbox}
+        <TagSelectors
+          tags={personTags}
+          selTags={selTags}
+          setSelTags={setSelTags}
+          tagConfig={configData.PEOPLE.TAGS}
+        />
         {searchInput}
+      </div>
+      <div className="reset-filters">
+        <ResetButton
+          isFiltered={peopleAreFiltered}
+          resetFilters={resetPeopleFilters}
+        />
       </div>
       <ul>{rows}</ul>
     </div>

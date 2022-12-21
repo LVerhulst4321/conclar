@@ -1,12 +1,18 @@
 import DOMPurify from "dompurify";
 import { useStoreState, useStoreActions } from "easy-peasy";
+import { Link } from "react-router-dom";
+import useMeasure from "react-use-measure";
+import { useSpring, animated } from "react-spring";
+import { IoChevronDownCircle } from "react-icons/io5";
+import { HiLink } from "react-icons/hi";
+import ItemLink from "./ItemLink";
 import Location from "./Location";
 import Tag from "./Tag";
 import Participant from "./Participant";
 import configData from "../config.json";
-//import PropTypes from 'prop-types'
+import PropTypes from "prop-types";
 
-const ProgramItem = ({ item }) => {
+const ProgramItem = ({ item, forceExpanded }) => {
   const selected = useStoreState((state) => state.isSelected(item.id));
   const { addSelection, removeSelection } = useStoreActions((actions) => ({
     addSelection: actions.addSelection,
@@ -21,8 +27,10 @@ const ProgramItem = ({ item }) => {
 
   function toggleExpanded() {
     if (configData.INTERACTIVE) {
-      if (expanded) collapseItem(item.id);
-      else expandItem(item.id);
+      if (expanded) {
+        // Check for selection text. Only collapse if empty so users can select items.
+        if (window.getSelection().toString() === "") collapseItem(item.id);
+      } else expandItem(item.id);
     }
   }
 
@@ -39,47 +47,86 @@ const ProgramItem = ({ item }) => {
     }
   else locations.push(<Location key={item.loc} loc={item.loc} />);
 
+  const permaLink =
+    configData.PERMALINK.SHOW_PERMALINK && configData.INTERACTIVE ? (
+      <div className="item-permalink">
+        <Link
+          to={"/id/" + item.id}
+          title={configData.PERMALINK.PERMALINK_TITLE}
+        >
+          <HiLink />
+        </Link>
+      </div>
+    ) : (
+      ""
+    );
+
   const tags = [];
-  for (let tag of item.tags) {
-    tags.push(<Tag key={tag} tag={tag} />);
+  for (const tag of item.tags) {
+    tags.push(<Tag key={tag.value} tag={tag.label} />);
   }
 
   const people = [];
   if (item.people) {
     item.people.forEach((person) => {
-      people.push(<Participant key={person.id} person={person} moderator={person.id === item.moderator} />);
+      people.push(
+        <Participant
+          key={person.id}
+          person={person}
+          moderator={person.id === item.moderator}
+        />
+      );
     });
   }
-  const safeDesc = DOMPurify.sanitize(item.desc);
-  const signupLink =
-    item.links && item.links.signup && item.links.signup.length ? (
-      <div className="item-links-signup">
-        <a href={item.links.signup}>{configData.LINKS.SIGNUP}</a>
-      </div>
-    ) : (
-      ""
-    );
-  const meetingLink =
-    item.links && item.links.meeting && item.links.meeting.length ? (
-      <div className="item-links-meeting">
-        <a href={item.links.meeting}>{configData.LINKS.MEETING}</a>
-      </div>
-    ) : (
-      ""
-    );
-  const recordingLink =
-    item.links && item.links.recording && item.links.recording.length ? (
-      <div className="item-links-recording">
-        <a href={item.links.recording}>{configData.LINKS.RECORDING}</a>
-      </div>
-    ) : (
-      ""
-    );
+  const safeDesc = DOMPurify.sanitize(
+    item.desc,
+    configData.ITEM_DESCRIPTION.PURIFY_OPTIONS
+  );
+
+  const links = [];
+  if (configData.LINKS) {
+    configData.LINKS.forEach((link) => {
+      if (item.links && item.links[link.NAME] && item.links[link.NAME].length) {
+        links.push(
+          <ItemLink
+            key={link.NAME}
+            name={"item-links-" + link.NAME}
+            link={item.links[link.NAME]}
+            text={link.TEXT}
+          />
+        );
+      }
+    });
+  }
+
   const duration =
     configData.DURATION.SHOW_DURATION && item.mins ? (
       <div className="item-duration">
         {configData.DURATION.DURATION_LABEL.replace("@mins", item.mins)}
       </div>
+    ) : (
+      ""
+    );
+
+  const [ref, bounds] = useMeasure();
+  const showExpanded = !configData.INTERACTIVE || expanded || forceExpanded;
+  const chevronExpandedClass = showExpanded ? " item-chevron-expanded" : "";
+  const chevronExpandedStyle = useSpring({
+    transform: showExpanded ? "rotate(180deg)" : "rotate(0deg)",
+  });
+  const itemExpandedStyle = useSpring({
+    height: showExpanded ? bounds.height : 0,
+    config: configData.EXPAND.SPRING_CONFIG,
+  });
+
+  const chevron =
+    configData.INTERACTIVE && !forceExpanded ? (
+      <animated.div
+        className={"item-chevron" + chevronExpandedClass}
+        style={chevronExpandedStyle}
+      >
+        <IoChevronDownCircle />
+      </animated.div>
     ) : (
       ""
     );
@@ -97,37 +144,39 @@ const ProgramItem = ({ item }) => {
         </div>
       </div>
       <div className="item-entry" onClick={toggleExpanded}>
-        <div className="item-title">{item.title}</div>
+        <div className="item-title">
+          {chevron}
+          {item.title}
+        </div>
         <div className="item-line2">
           <div className="item-location">{locations}</div>
           {duration}
         </div>
-        <div
-          className={
-            expanded ? "item-details item-details-expanded" : "item-details"
-          }
-        >
-          <div className="item-people">
-            <ul>{people}</ul>
+        <animated.div className="item-details" style={itemExpandedStyle}>
+          <div className="item-details-expanded" ref={ref}>
+            {permaLink}
+            <div className="item-people">
+              <ul>{people}</ul>
+            </div>
+            <div className="item-tags">{tags}</div>
+            <div
+              className="item-description"
+              dangerouslySetInnerHTML={{ __html: safeDesc }}
+            />
+            <div className="item-links">{links}</div>
           </div>
-          <div className="item-tags">{tags}</div>
-          <div
-            className="item-description"
-            dangerouslySetInnerHTML={{ __html: safeDesc }}
-          />
-          <div className="item-links">
-            {signupLink}
-            {meetingLink}
-            {recordingLink}
-          </div>
-        </div>
+        </animated.div>
       </div>
     </div>
   );
 };
 
-// ProgramItem.PropTypes = {
-//     item: PropTypes.object
-// }
+ProgramItem.defaultProps = {
+  forceExpanded: false,
+};
+
+ProgramItem.propTypes = {
+  forceExpanded: PropTypes.bool,
+};
 
 export default ProgramItem;

@@ -4,11 +4,14 @@
  * 1. Global application styles.
  * 2. Application header.
  * 3. Navigation.
+ * 3a. Toggles and Filters.
  * 4. Program.
  * 5. People.
  * 6. Informtion page.
- * 7. Site footer.
- * 8. Print styles.
+ * 7. Settings page.
+ * 8. Site footer.
+ * 9. Print styles.
+ * 10. Debug styles.
  */
 
 /*
@@ -16,24 +19,39 @@
  */
 
 :root {
-  --main-bg: #eafaf1;
+  --main-bg: #fff;
   --main-fg: #000;
-  --navigation-button-bg: #e6e6fa;
-  --navigation-button-fg: #9400d3;
+  --navigation-button-bg: #ddd;
+  --navigation-button-fg: #0d172a;
   --navigation-button-border: #e2e8f0;
+  --navigation-button-current-bg: #5b6473; /*#525e73; #343c4b;*/
+  --navigation-button-current-fg: #fff;
   --navigation-button-hover-bg: #1e293b;
   --navigation-button-hover-fg: #fff;
   --checkbox-switch-bg: white;
   --checkbox-selected-bg: green;
   --checkbox-unselected-bg: red;
+  --search-border: hsl(0, 0%, 80%);
+  --reset-button-bg: var(--navigation-button-current-bg);
+  --reset-button-fg: var(--navigation-button-current-fg);
+  --add-all-button-bg: var(--navigation-button-current-bg);
+  --add-all-button-fg: var(--navigation-button-current-fg);
+  --add-more-button-bg: var(--navigation-button-current-bg);
+  --add-more-button-fg: var(--navigation-button-current-fg);
+  --program-item-chevron-collapsed: #ccc;
+  --program-item-chevron-expanded: #bbe;
+  --program-time-convention-message: grey;
   --program-time-local-message: grey;
-  --program-date-line: #9400d3;
-  --program-time-line: #9400d3;
-  --program-item-line: #e6e6fa;
+  --program-date-line: #888;
+  --program-time-line: #ccc;
+  --program-item-line: #bbb;
   --program-tags-fg: #888;
-  --program-expanded-bg: #e6e6fa;
+  --program-expanded-bg: #eee;
+  --permalink-icon-fg: #265c83;
+  --permalink-icon-hover-fg: #7fdbff;
   --participant-link-fg: #000;
   --participant-link-visited-fg: #444;
+  --settings-outline: #888;
   --footer-line: #888;
   --error-message-fg: tomato;
   --shadow-014: rgba(0, 0, 0, 0.14);
@@ -47,12 +65,18 @@
   --debug-offline-fg: white;
 }
 
+img {
+  width: 100%;
+  height: auto;
+}
+
 body {
-  margin: 0;
+  margin: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--main-bg);
   color: var(--main-fg);
+  max-width: 75rem;
 }
 
 .App {
@@ -82,6 +106,7 @@ code {
 
 header {
   text-align: center;
+  justify-content: center;
 }
 
 header h1 {
@@ -101,7 +126,7 @@ header h1 {
 }
 
 .navigation li {
-  margin: 0;
+  margin: 0.25em 0;
 }
 
 /* CSS for button 81 from https://getcssscan.com/css-buttons-examples */
@@ -132,7 +157,13 @@ header h1 {
   white-space: nowrap;
 }
 
-.navigation li a:hover {
+.navigation li a.active {
+  background-color: var(--navigation-button-current-bg);
+  color: var(--navigation-button-current-fg);
+}
+
+.navigation li a:hover,
+.navigation li a.active:hover {
   background-color: var(--navigation-button-hover-bg);
   color: var(--navigation-button-hover-fg);
 }
@@ -145,6 +176,14 @@ header h1 {
   }
 }
 
+@media (max-width: 480px) {
+  .navigation li a {
+    padding: 0.5rem 0.7rem;
+    border-radius: 0.5rem;
+  }
+}
+
+/* page not founds */
 .error {
   text-align: center;
   color: var(--error-message-fg);
@@ -155,33 +194,15 @@ header h1 {
   font-weight: bold;
 }
 
-.filter-locations {
-  display: inline-block;
-  font-size: 0.8em;
-  padding: 0 0.5em 0.5em 0;
-}
-
-.filter-tags {
-  display: inline-block;
-  font-size: 0.8em;
-  padding: 0 0.5em 0.5em 0;
-}
-
-.filter-total {
-  margin: 0.3rem 0 1rem 0;
-}
-
-/* Removing for now to prevent odd display of checkboxes in middle of row, and weird display in Firefox.
-div.filter-options {
-  float: right;
-}
-*/
-
-/* style all non-selection checkboxes as toggles
+/* 3a. Toggles and Filters.
+   style all non-selection checkboxes as toggles
    based on https://www.sitepoint.com/css3-toggle-switch/ */
 
 div.switch-wrapper {
   font-size: smaller;
+}
+div.switch-wrapper label {
+  max-height: 2em;
 }
 
 div.switch-wrapper,
@@ -245,6 +266,85 @@ input.switch:checked ~ label:after {
   margin-left: 1.5em;
 }
 
+/* two rews on large screens, seven on tiny */
+.search-filters,
+.result-filters {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding-inline-start: 0;
+  margin: 0.25em;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding-inline-start: 0;
+}
+
+.filter-tags,
+.filter-locations,
+.filter-search,
+.filter-options {
+  flex-basis: 0;
+  flex-grow: 1;
+  margin: 0.25em;
+}
+
+.filter-tags,
+.filter-locations,
+.filter-search {
+  font-size: 0.8em;
+  min-width: 20ch;
+  max-width: 50ch;
+}
+
+.stack {
+  flex-basis: 0;
+  flex-grow: 2;
+  margin: 0.25em;
+}
+
+.filter-expand,
+.filter-options {
+  white-space: nowrap;
+}
+
+.filter-search,
+.people-search {
+  max-width: 30ch;
+  margin: auto 0.25em;
+}
+
+.filter-search input,
+.people-search input {
+  min-height: 38px;
+  border: 1px var(--search-border) solid;
+  border-radius: 4px;
+}
+
+.filter-expand {
+  margin-top: 0.5em;
+  max-width: 100ch;
+}
+
+.reset-filters {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.reset-button {
+  background-color: var(--reset-button-bg);
+  color: var(--reset-button-fg);
+  font-size: 1rem;
+  padding: .5rem 1.5rem;
+  border: none;
+  border-radius: 1.5rem;
+}
+
 /*
  * 4. Program.
  */
@@ -265,17 +365,30 @@ input.switch:checked ~ label:after {
   flex-direction: column;
 }
 
+.time-convention-message {
+  font-weight: bold;
+  color: var(--program-time-convention-message);
+}
+
 .time-local-message {
   font-style: italic;
   color: var(--program-time-local-message);
 }
 
 .date-heading {
+  position: sticky;
+  top: 0;
   font-size: 1.5rem;
   font-weight: bold;
-  margin-top: 1rem;
+  margin-top: 0rem;
   margin-bottom: 0.5rem;
+  padding-top: 1rem;
   border-bottom: 1px solid var(--program-date-line);
+  background-color: var(--main-bg);
+}
+
+.debug-mode .date-heading {
+  padding-top: 3rem;
 }
 
 .timeslot {
@@ -285,9 +398,39 @@ input.switch:checked ~ label:after {
 }
 
 .timeslot-time {
-  min-width: 8ch;
+  min-width: 9ch;
   vertical-align: top;
   flex-grow: 0;
+}
+
+.timeslot-wide {
+  min-width: 12ch;
+}
+
+.time-wrapper {
+  position: sticky;
+  top: 3rem;
+  z-index: -1;
+}
+
+.debug-mode .time-wrapper {
+  position: sticky;
+  top: 5rem;
+}
+
+.time-convention {
+  font-weight: bold;
+}
+
+.time-local {
+  font-style: italic;
+  font-size: 0.9em;
+  padding-left: 0.2em;
+  max-width: 9ch;
+}
+
+.timeslot-wide .time-local {
+  max-width: 12ch;
 }
 
 .timeslot-items {
@@ -324,6 +467,18 @@ input.switch:checked ~ label:after {
   word-break: break-word;
 }
 
+.item-chevron {
+  float: right;
+  color: var(--program-item-chevron-collapsed);
+  font-size: 1.5rem;
+  line-height: 1rem;
+  overflow: auto;
+}
+
+.item-chevron-expanded {
+  color: var(--program-item-chevron-expanded);
+}
+
 .item-title {
   font-weight: bold;
 }
@@ -348,6 +503,30 @@ input.switch:checked ~ label:after {
   white-space: nowrap;
 }
 
+.item-permalink {
+  float: right;
+}
+
+.item-permalink a,
+.item-links a {
+  transition: color 0.4s;
+  color: var(--permalink-icon-fg);
+}
+.item-permalink a:visited,
+.item-links a:visited {
+  color: var(--permalink-icon-fg);
+}
+.item-permalink a:hover,
+.item-links a:hover {
+  color: var(--permalink-icon-hover-fg);
+}
+
+/* fix link spacing */
+
+.item-links {
+  margin-top: 0.3rem;
+}
+
 .item-people {
   margin: 0.5rem 0;
 }
@@ -363,7 +542,9 @@ input.switch:checked ~ label:after {
 }
 
 .item-people .participant img {
-  max-width: 2rem;
+  object-fit: cover;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   vertical-align: middle;
   padding: 0.1rem;
@@ -380,37 +561,87 @@ input.switch:checked ~ label:after {
 }
 
 .item-details {
-  transition-property: max-height;
-  transition-duration: 0.5s;
-  transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  max-height: 0;
   overflow: hidden;
 }
 
-.item-entry > .item-details.item-details-expanded {
-  background-color: var(--program-expanded-bg);
-}
+/* .item-entry > .item-details.item-details-expanded {
+} */
 
 .item-details-expanded {
-  max-height: 40rem;
+  background-color: var(--program-expanded-bg);
   padding: 0.5rem;
   border-radius: 0.5rem;
   overflow: auto;
 }
 
-.time-convention {
-  font-weight: bold;
+/* Sharing on My Schedule. */
+.share-group {
+  margin: 0.5em 0;
+  padding: 0.5rem;
+  border: 1px solid var(--settings-outline);
+  border-radius: 0.5rem;
 }
 
-.time-local {
-  font-style: italic;
-  font-size: 0.9em;
-  padding-left: 0.2em;
+.share-head {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.share-body {
+  margin-bottom: 0.25rem;
+}
+
+.share-qr-code {
+  margin: 0.5rem;
+}
+
+/* When limit on displayed items, show more button. */
+
+.result-more-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.show-more-button {
+  background-color: var(--add-more-button-bg);
+  color: var(--add-more-button-fg);
+  font-size: 1rem;
+  padding: .5rem 1.5rem;
+  border: none;
+  border-radius: 1.5rem;
+}
+
+/* ItemIDs page, showing shared items. */
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.button-add-all {
+  background-color: var(--add-all-button-bg);
+  color: var(--add-all-button-fg);
+  font-size: 1rem;
+  padding: .5rem 1.5rem;
+  border: none;
+  border-radius: 1.5rem;
 }
 
 /*
  * 5. people.
  */
+
+.people-settings {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding-inline-start: 0;
+  margin: 0.25em;
+}
 
 .people ul {
   column-width: 25ch;
@@ -427,10 +658,11 @@ input.switch:checked ~ label:after {
 }
 
 .people .participant {
+  display: inline-block;
   min-width: 10rem;
   margin-right: 1rem;
   margin-bottom: 1rem;
-  break-inside: avoid;
+  break-inside: avoid-column;
 }
 
 .people .participant {
@@ -438,7 +670,9 @@ input.switch:checked ~ label:after {
 }
 
 .people .participant img {
-  max-width: 5rem;
+  object-fit: cover;
+  width: 5rem;
+  height: 5rem;
   border-radius: 50%;
   vertical-align: middle;
   padding: 0.1rem;
@@ -450,12 +684,40 @@ input.switch:checked ~ label:after {
   margin: 1rem 0;
 }
 
+.person-back-button {
+  border: none;
+  background: none;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
 .person .person-image img {
   max-width: 10rem;
   padding: 0.3rem;
   margin: 0 0.5rem 0.5rem 0;
   box-shadow: 0px 2px 2px 0px var(--shadow-014),
     0px 3px 1px -2px var(--shadow-012), 0px 1px 5px 0px var(--shadow-02);
+}
+
+.person-tags {
+  font-size: 0.9em;
+  color: var(--program-tags-fg);
+  margin-bottom: 0.24rem;
+}
+
+.person .person-links {
+  max-width: 60ch;
+  margin-top: 0.5rem;
+}
+
+.person .person-links a {
+  color: var(--participant-link-fg);
+}
+
+.person .person-links a:active,
+.person .person-links a:hover,
+.person .person-links a:visited {
+  color: var(--participant-link-visited-fg);
 }
 
 .person .person-bio {
@@ -476,11 +738,32 @@ input.switch:checked ~ label:after {
 
 .info {
   margin: 1rem;
-  /* max-width: 60ch; */
+  max-width: 60ch;
 }
 
 /*
- * 7. Site footer.
+ * 7. Settings page.
+ */
+
+.settings-group {
+  margin: 0.5em 0;
+  padding: 0.5rem;
+  border: 1px solid var(--settings-outline);
+  border-radius: 0.5rem;
+}
+
+.settings-head {
+  margin-bottom: 0.5em;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.settings-radio {
+  display: grid;
+}
+
+/*
+ * 8. Site footer.
  */
 
 footer {
@@ -491,7 +774,7 @@ footer {
 }
 
 /*
- * 8. Print styles.
+ * 9. Print styles.
  */
 
 @media print {
@@ -546,7 +829,7 @@ div.uninteractive div.info {
 }
 
 /*
- * 9. Debug mode styles.
+ * 10. Debug mode styles.
  */
 
 .debug {
