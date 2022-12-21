@@ -388,7 +388,7 @@ export class ProgramData {
   static async fetchData(firstTime) {
     //setLoadingMessage
     try {
-      console.log("Fetching:", firstTime ? "First time" : "Refreshing");
+      //console.log("Fetching:", firstTime ? "First time" : "Refreshing");
       const fetchOptions = firstTime
         ? configData.FETCH_OPTIONS_FIRST
         : configData.FETCH_OPTIONS;

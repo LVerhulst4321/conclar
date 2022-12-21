@@ -1,9 +1,9 @@
 {
   "BASE_PATH": "/",
-  "APP_ID": "O2021",
-  "APP_TITLE": "ConClár Programme Guide",
-  "PROGRAM_DATA_URL": "/schedule.jsonp",
-  "PEOPLE_DATA_URL": "/participants.jsonp",
+  "APP_ID": "CAP43",
+  "APP_TITLE": "Capricon 43 Program Guide",
+  "PROGRAM_DATA_URL": "https://guide.capricon.org/konOpasData.json",
+  "PEOPLE_DATA_URL": "https://guide.capricon.org/konOpasData.json",
   "FETCH_OPTIONS": {
     "cache": "reload",
     "credentials": "omit",
@@ -26,12 +26,12 @@
     "LINEFEED_AFTER_URL": false
   },
   "NAVIGATION": {
-    "PROGRAM": "Programme",
+    "PROGRAM": "Program",
     "PEOPLE": "People",
     "MYSCHEDULE": "My Schedule",
     "INFO": "Information",
     "SETTINGS": "Settings",
-    "EXTRA": [{ "LABEL": "Octocon Home", "URL": "https://octocon.com" }]
+    "EXTRA": [{ "LABEL": "Capricon Home", "URL": "https://capricon.org" }]
   },
   "LOCATIONS": {
     "SEARCHABLE": false
@@ -63,14 +63,14 @@
         "LABEL": "Share program selection",
         "DESCRIPTION": "Copy and paste this link to share your selections with other devices. Or point your camera at the QR code below.",
         "LINK_LABEL": "Shareable link",
-        "MAX_LENGTH": 2500,
+        "MAX_LENGTH": 500,
         "MULTIPLE_DESCRIPTION": "Because you have selected a large number of items, you will need to use multiple links/QR codes to transfer to your other devices.",
         "MULTIPLE_LINK_LABEL": "Shareable link #@number"
       }
     },
     "SHARED": {
       "TITLE": "Shared Program Items",
-      "DESCRIPTION": "The following programme items have been shared with you. To add to your schedule, click the button at the bottom of the page.",
+      "DESCRIPTION": "The following program items have been shared with you. To add to your schedule, click the button at the bottom of the page.",
       "BUTTON_LABEL": "Add all to My Schedule"
     }
   },
@@ -79,10 +79,11 @@
     "SEARCHABLE": false,
     "HIDE": false,
     "SEPARATE": [
-      { "PREFIX": "type", "PLACEHOLDER": "Select type", "SEARCHABLE": true, "HIDE": false },
-      { "PREFIX": "test", "PLACEHOLDER": "Select test", "SEARCHABLE": true, "HIDE": false }
+      { "PREFIX": "Day", "PLACEHOLDER": "Select day", "SEARCHABLE": false, "HIDE": false },
+      { "PREFIX": "Division", "PLACEHOLDER": "Select division", "SEARCHABLE": true, "HIDE": false },
+      { "PREFIX": "Track", "PLACEHOLDER": "Select track", "SEARCHABLE": true, "HIDE": false }
     ],
-    "FORMAT_AS_TAG": false,
+    "FORMAT_AS_TAG": true,
     "DAY_TAG": {
       "GENERATE": true,
       "DAYS": {
@@ -93,7 +94,7 @@
         "1": "Monday"
       },
       "PLACEHOLDER": "Select days",
-      "SEARCHABLE": true,
+      "SEARCHABLE": false,
       "HIDE": false
     }
   },
@@ -112,7 +113,7 @@
     "SPRING_CONFIG": { "duration": 100 }
   },
   "ITEM_DESCRIPTION": {
-    "PURIFY_OPTIONS": {}
+    "PURIFY_OPTIONS": { "FORBID_ATTR": ["style"] }
   },
   "LINKS": [
     {"NAME": "signup",
@@ -139,7 +140,7 @@
     "FAILURE": "Unable to convert to local time."
   },
   "TIME_FORMAT": {
-    "DEFAULT_12HR": false,
+    "DEFAULT_12HR": true,
     "SHOW_CHECKBOX": true,
     "CHECKBOX_LABEL": "Show 12 hour time",
     "AM": "AM",
@@ -160,14 +161,14 @@
       "MODERATOR_LABEL": "(moderator)"
     },
     "THUMBNAILS": {
-      "SHOW_THUMBNAILS": true,
-      "SHOW_CHECKBOX": true,
+      "SHOW_THUMBNAILS": false,
+      "SHOW_CHECKBOX": false,
       "CHECKBOX_LABEL": "Show thumbnails",
-      "DEFAULT_IMAGE": "head.svg"
+      "DEFAULT_IMAGE": ""
     },
     "SORT": {
       "SHOW_CHECKBOX": true,
-      "CHECKBOX_LABEL": "Sort by full name"
+      "CHECKBOX_LABEL": "Alternate Sort"
     },
     "TAGS": {
       "PLACEHOLDER": "Select tags",
@@ -182,14 +183,14 @@
     },
     "PERSON_HEADER": "Person: ",
     "BIO": {
-      "PURIFY_OPTIONS": {}
+      "PURIFY_OPTIONS": { "FORBID_ATTR": ["style"] }
     }
   },
   "USELESS_CHECKBOX": {
     "CHECKBOX_LABEL": "Useless checkbox"
   },
   "INFORMATION": {
-    "MARKDOWN_URL": "info.md",
+    "MARKDOWN_URL": "capricon_info.md",
     "LOADING_MESSAGE": "Loading..."
   },
   "SETTINGS": {

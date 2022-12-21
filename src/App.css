@@ -593,7 +593,7 @@ input.switch:checked ~ label:after {
 }
 
 .share-qr-code {
-  margin: 0.25rem;
+  margin: 0.5rem;
 }
 
 /* When limit on displayed items, show more button. */
