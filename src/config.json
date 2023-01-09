@@ -79,9 +79,10 @@
     "SEARCHABLE": false,
     "HIDE": false,
     "SEPARATE": [
-      { "PREFIX": "Day", "PLACEHOLDER": "Select day", "SEARCHABLE": false, "HIDE": false },
-      { "PREFIX": "Division", "PLACEHOLDER": "Select division", "SEARCHABLE": true, "HIDE": false },
-      { "PREFIX": "Track", "PLACEHOLDER": "Select track", "SEARCHABLE": true, "HIDE": false }
+      { "PREFIX": "Division", "PLACEHOLDER": "Select division", "SEARCHABLE": false, "HIDE": true },
+      { "PREFIX": "Tag", "PLACEHOLDER": "Select tag", "SEARCHABLE": true, "HIDE": false },
+      { "PREFIX": "Track", "PLACEHOLDER": "Select track", "SEARCHABLE": true, "HIDE": false },
+      { "PREFIX": "Type", "PLACEHOLDER": "Select type", "SEARCHABLE": true, "HIDE": false }
     ],
     "FORMAT_AS_TAG": true,
     "DAY_TAG": {
@@ -90,8 +91,7 @@
         "4": "Thursday",
         "5": "Friday",
         "6": "Saturday",
-        "7": "Sunday",
-        "1": "Monday"
+        "7": "Sunday"
       },
       "PLACEHOLDER": "Select days",
       "SEARCHABLE": false,
